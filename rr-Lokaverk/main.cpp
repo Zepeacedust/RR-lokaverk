@@ -18,32 +18,46 @@ int calculate(Complex C, int resolution)
 }
 int main() 
 {
-	int imageX, imageY;
-	long double worldX, worldY;
+	setlocale(LC_ALL, "icelandic");
+	int iterations = 2048;
+	int imageX = 2000;
+	int imageY = 2000;
+	long double worldX[2] {-1.5, 0.5};
+	long double worldY[2] { -1, 1 };
+	std::string fileName;
+	std::cout << "Sláðu in fjölda itranna, hærra gerir nákvæmari mynd en það er hægara." << std::endl;
+	std::cin >> iterations;
+	std::cout << "Sláðu inn stærð myndarinnar í pixlum, x fyrst svo y, bil á milli" << std::endl;
+	std::cin >> imageX;
+	std::cin >> imageY;
 
-	Image image = Image("Test.bmp", 32, 32);
+	std::cout << "Sláðu inn byrjunn og enda myndarinnar á x ásinum" << std::endl;
+	std::cin >> worldX[0];
+	std::cin >> worldX[1];
 
-	for (size_t i = 0; i < 1024; i++)
+	std::cout << "Sláðu inn byrjunn og enda myndarinnar á y ásinum" << std::endl;
+	std::cin >> worldY[0];
+	std::cin >> worldY[1];
+	
+	std::cout << "Sláðu inn filename, ef eitthvað er þar fyrirfram mun því vera eitt" << std::endl;
+	std::cin >> fileName;
+	
+	long double widthX = worldX[1] - worldX[0];
+	long double widthY = worldY[1] - worldY[0];
+	long double pixelsPerUnitX = imageX / widthX;
+	long double pixelsPerUnitY = imageY / widthY;
+
+	Image image = Image(fileName, imageX, imageY);
+
+	for (size_t y = 0; y < imageY; y++)
 	{
-		image.addPixel(0, 0, i%256);
-	}
-
-
-
-	/*for (size_t y = 0; y < 40; y++)
-	{
-		for (size_t x = 0; x < 40; x++)
+		for (size_t x = 0; x < imageX; x++)
 		{
-			Complex c = Complex(x / (long double)10 - 2, y / (long double)10 - 2);
-			if (calculate(c,500) == 500) 
-			{
-				std::cout << "#";
-			}
-			else
-			{
-				std::cout << " ";
-			}
+			Complex c = Complex(x / pixelsPerUnitX + worldX[0], y / pixelsPerUnitY + worldY[0]);
+			int zMax = (float)calculate(c, iterations) / iterations * 255;
+			image.addPixel(zMax, zMax, zMax);
+			
 		}
-		std::cout << std::endl;
-	}*/
+		std::cout << (float)y / imageY * 100 << "%" << std::endl;
+	}
 }
